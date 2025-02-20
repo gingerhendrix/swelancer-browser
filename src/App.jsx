@@ -17,6 +17,10 @@ function App() {
         }
         const jsonData = await response.json();
         setData(jsonData);
+        // Select the first item by default
+        if (jsonData.length > 0) {
+          setSelectedRow(jsonData[0]);
+        }
         setError(null);
       } catch (err) {
         setError('Error loading data: ' + err.message);
@@ -48,9 +52,9 @@ function App() {
         )}
       </div>
       
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 p-4 pt-0 min-h-0">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[350px,1fr] gap-4 p-4 pt-0 min-h-0">
         <div className="bg-white rounded-lg shadow flex flex-col min-h-0">
-          <h2 className="text-xl font-semibold p-4 border-b">Benchmark Entries</h2>
+          <h2 className="text-xl font-semibold p-4 border-b">Tasks</h2>
           <div className="flex-1 overflow-auto">
             <DataTable 
               data={data} 
@@ -60,14 +64,18 @@ function App() {
           </div>
         </div>
         
-        {selectedRow && (
-          <div className="bg-white rounded-lg shadow flex flex-col min-h-0">
-            <h2 className="text-xl font-semibold p-4 border-b">Detail View</h2>
-            <div className="flex-1 overflow-auto p-4">
+        <div className="bg-white rounded-lg shadow flex flex-col min-h-0">
+          <h2 className="text-xl font-semibold p-4 border-b">Detail View</h2>
+          <div className="flex-1 overflow-auto p-4">
+            {selectedRow ? (
               <DetailView data={selectedRow} />
-            </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                No task selected
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
