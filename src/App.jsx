@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import * as XLSX from 'xlsx';
+import React, { useState, useEffect } from 'react';
 import { DataTable } from './components/DataTable';
 import { DetailView } from './components/DetailView';
 
@@ -7,64 +6,45 @@ function App() {
   const [data, setData] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          try {
-            const workbook = XLSX.read(e.target.result, { type: 'array' });
-            const sheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet);
-            setData(jsonData);
-            setError(null);
-          } catch (err) {
-            setError('Error parsing XLSX file: ' + err.message);
-          }
-        };
-        reader.onerror = () => {
-          setError('Error reading file');
-        };
-        reader.readAsArrayBuffer(file);
+        const response = await fetch('/swelancer_tasks.json');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const jsonData = await response.json();
+        setData(jsonData);
+        setError(null);
       } catch (err) {
-        setError('Error processing file: ' + err.message);
+        setError('Error loading data: ' + err.message);
+        setData([]);
+      } finally {
+        setLoading(false);
       }
-    }
-  };
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">SWELancer Benchmark Visualization</h1>
       
-      <div className="mb-6">
-        <label 
-          htmlFor="xlsx-upload" 
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Upload Benchmark XLSX
-        </label>
-        <input
-          type="file"
-          id="xlsx-upload"
-          accept=".xlsx,.xls"
-          onChange={handleFileUpload}
-          className="block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-md file:border-0
-            file:text-sm file:font-semibold
-            file:bg-blue-50 file:text-blue-700
-            hover:file:bg-blue-100
-            cursor-pointer"
-        />
-        {error && (
-          <p className="mt-2 text-sm text-red-600">
-            {error}
-          </p>
-        )}
-      </div>
+      {loading && (
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading data...</p>
+        </div>
+      )}
+      
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+          {error}
+        </div>
+      )}
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-white rounded-lg shadow p-4">
