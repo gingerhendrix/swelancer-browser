@@ -1,3 +1,5 @@
-# swelancer-viz
+# SWE-Lancer Browser
 
-[Edit in StackBlitz next generation editor ⚡️](https://stackblitz.com/~/github.com/gingerhendrix/swelancer-viz)
+An interface for browsing the [SWE-Lancer Benchmark introduced by OpenAI](https://openai.com/index/swe-lancer/)
+
+
